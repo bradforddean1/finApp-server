@@ -1,28 +1,40 @@
 {
-  "name": "finApp",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  rfef: {
-    "docs": "jsdoc -c jsdoc.conf.json",
-    "test":"mocha --require test/setup.js",
-    "dev": "nodemon server.js",
-    "start": "node server.js"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "helmet": "^4.1.1",
-    "morgan": "^1.10.0"
-  },
-  "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^8.2.0",
-    "nodemon": "^2.0.6",
-    "supertest": "^5.0.0"
-  }
+	"name": "finapp",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"docs": "jsdoc -c jsdoc.conf.json",
+		"test": "env NODE_ENV=test mocha --require test/setup.js",
+		"dev": "nodemon server.js",
+		"start": "node server.js",
+		"migrate": "postgrator --config config/postgrator-config.js",
+		"migrate:test": "env NODE_ENV=test npm run migrate"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5",
+		"dotenv": "^8.2.0",
+		"express": "^4.17.1",
+		"express-session": "^1.17.1",
+		"helmet": "^4.1.1",
+		"knex": "^0.21.6",
+		"morgan": "^1.10.0",
+		"passport": "^0.4.1",
+		"passport-google-oauth20": "^2.0.0",
+		"passport-local": "^1.0.0",
+		"pg": "^8.4.1",
+		"winston": "^3.3.3"
+	},
+	"devDependencies": {
+		"chai": "^4.2.0",
+		"mocha": "^8.2.0",
+		"nodemon": "^2.0.6",
+		"passport-stub": "^1.1.1",
+		"postgrator-cli": "^3.2.0",
+		"supertest": "^5.0.0"
+	}
 }
