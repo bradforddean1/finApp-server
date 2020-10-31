@@ -6,8 +6,11 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("../config/config");
 const session = require("express-session");
 const passport = require("./auth/passport-config");
+
+// routes
 const authRouter = require("./auth/auth-router");
 const userRouter = require("./users/user-router");
+const quoteRouter = require("./quote/quote-router");
 
 const app = express();
 

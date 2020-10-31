@@ -1,6 +1,5 @@
 const app = require("../src/app");
 const db = require("../db/connection");
-const fixtures = require("./fixtures/app-fixtures");
 const passportStub = require("passport-stub");
 
 passportStub.install(app);
@@ -8,10 +7,9 @@ passportStub.install(app);
 describe.only("App", () => {
 	// Common setup and teardown
 	before("cleanup", () => db("users").truncate());
-	beforeEach("insert users", () => {
+	before("insert users", () => {
 		return db.seed.run();
 	});
-	afterEach("cleanup", () => db("users").truncate());
 	afterEach("logout", () => passportStub.logout());
 	after("disconnect from db", () => db.destroy());
 

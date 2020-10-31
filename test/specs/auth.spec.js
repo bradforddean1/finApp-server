@@ -1,17 +1,22 @@
 const passportStub = require("passport-stub");
 const app = require("../../src/app");
 const db = require("../../db/connection");
+const {
+	makeUsersArray,
+	makeMaliciousUser,
+} = require("../fixtures/app-fixtures");
 
 passportStub.install(app);
 
 describe("Auth endpoints", () => {
-	// before("cleanup", () => db("users").truncate());
-	// beforeEach("insert users", () => {
-	// 	return db.seed.run();
-	// });
-	// afterEach("cleanup", () => db("users").truncate());
-	// afterEach("logout", () => passportStub.logout());
-	// after("disconnect from db", () => db.destroy());
+	before("cleanup", () => db("users").truncate());
+	beforeEach("insert test users", () => {
+		return db.into("users").insert(makeUsersArray());
+	});
+	afterEach("cleanup", () => db("users").truncate());
+	after("insert users", () => {
+		return db.seed.run();
+	});
 
 	describe("POST /auth/register", () => {
 		it("should register a new user", () => {
@@ -47,6 +52,23 @@ describe("Auth endpoints", () => {
 				})
 				.expect(400, basPassRes)
 				.expect("Content-Type", "application/json; charset=utf-8");
+		});
+		it("should stop an XSS attack", () => {
+			const { maliciousUser, expectedUser } = makeMaliciousUser();
+			return supertest(app)
+				.post(`/auth/register`)
+				.send(maliciousUser)
+				.expect(201)
+				.then(() => {
+					db.select("*")
+						.from("users")
+						.where({ id: 4 })
+						.first()
+						.then((response) => {
+							assert(response.username, expectedUser.username);
+							assert(response.password, expectedUser.password);
+						});
+				});
 		});
 	});
 

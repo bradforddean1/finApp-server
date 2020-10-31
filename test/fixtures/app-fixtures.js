@@ -1,46 +1,46 @@
+const bcrypt = require("bcryptjs");
+
 function makeUsersArray() {
-  return [
-    {
-      id: 1,
-      username: "Steve",
-      password: "Password123",
-      created_at: new Date(),
-    },
-    {
-      id: 2,
-      username: "James",
-      password: "Pass4321",
-      created_at: new Date(),
-    },
-    {
-      id: 3,
-      username: "Sussie",
-      password: "Password123MyPassword",
-      created_at: new Date(),
-    },
-  ];
+	const salt = bcrypt.genSaltSync();
+	return [
+		{
+			username: "steve",
+			password: bcrypt.hashSync("johnson123", salt),
+			created_at: new Date().toUTCString(),
+		},
+		{
+			username: "tom",
+			password: bcrypt.hashSync("xyz", salt),
+			created_at: new Date().toUTCString(),
+		},
+		{
+			username: "sandra",
+			password: bcrypt.hashSync("12356789", salt),
+			created_at: new Date().toUTCString(),
+		},
+	];
 }
 
 function makeMaliciousUser() {
-  const maliciousUser = {
-    id: 911,
-    username: 'Naughty naughty very naughty <script>alert("xss");</script>',
-    password: `Bad image <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">. But not <strong>all</strong> bad.`,
-    created_at: new Date(),
-  };
-  const expectedUser = {
-    ...maliciousUser,
-    username:
-      'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
-    password: `Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`,
-  };
-  return {
-    maliciousUser,
-    expectedUser,
-  };
+	const maliciousUser = {
+		username: 'Naughty naughty very naughty <script>alert("xss");</script>',
+		password: 'Naughty naughty very naughty <script>alert("xss");</script>',
+		created_at: new Date().toUTCString(),
+	};
+	const expectedUser = {
+		...maliciousUser,
+		username:
+			'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
+		password:
+			'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
+	};
+	return {
+		maliciousUser,
+		expectedUser,
+	};
 }
 
 module.exports = {
-  makeUsersArray,
-  makeMaliciousUser,
+	makeUsersArray,
+	makeMaliciousUser,
 };

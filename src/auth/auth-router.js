@@ -1,4 +1,5 @@
 const authRouter = require("express").Router();
+const xss = require("xss");
 const { getHash, loginRequired, loginRedirect } = require("./helpers");
 const passport = require("./passport-config");
 const bodyParser = require("express").json();
@@ -21,7 +22,7 @@ authRouter.route("/register").post(
 			});
 		}
 
-		AuthService.findUserByUsername(req.body.username).then((response) => {
+		AuthService.findUserByUsername(xss(req.body.username)).then((response) => {
 			if (response) {
 				return handleResponse(res, 400, "user exists");
 			} else {
@@ -32,7 +33,7 @@ authRouter.route("/register").post(
 	// Add User
 	(req, res, next) => {
 		const hash = getHash(req.body.password);
-		AuthService.createUser(req.body.username, hash)
+		AuthService.createUser(xss(req.body.username), hash)
 			.then((response) => {
 				return handleResponse(res, 201, "success");
 			})
