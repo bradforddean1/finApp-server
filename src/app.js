@@ -11,16 +11,16 @@ const passport = require("./auth/passport-config");
 const authRouter = require("./auth/auth-router");
 const userRouter = require("./users/user-router");
 const quoteRouter = require("./quote/quote-router");
+const portfolioRouter = require("./portfolio/portfolio-router");
 
+// definitions
 const app = express();
-
 const morganSetting = NODE_ENV === "production" ? "tiny" : "dev";
 
 // Middlewares
 app.use(morgan(morganSetting));
 app.use(helmet());
 app.use(cors());
-
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET_KEY,
@@ -28,17 +28,17 @@ app.use(
 		saveUninitialized: true,
 	})
 );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/quote", quoteRouter);
+app.use("/portfolio", portfolioRouter);
 
 app.get("/", (req, res) => {
 	res.send("Hello Express!");
 });
-
 // handle server errors
 app.use((error, req, res, next) => {
 	let response;

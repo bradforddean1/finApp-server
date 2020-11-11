@@ -4,9 +4,9 @@ const passportStub = require("passport-stub");
 
 passportStub.install(app);
 
-describe.only("App", () => {
+describe("App", () => {
 	// Common setup and teardown
-	before("cleanup", () => db("users").truncate());
+	before("cleanup", () => db.raw("TRUNCATE TABLE users CASCADE"));
 	before("insert users", () => {
 		return db.seed.run();
 	});
@@ -28,9 +28,10 @@ describe.only("App", () => {
 		});
 	});
 
-	// Route Tests
-	describe("app endpoints", () => {
-		require("./specs/auth.spec");
-		require("./specs/user.spec");
-	});
+	// Route Specs
+	// describe("app endpoints", () => {
+	// 	require("./specs/auth.spec");
+	// 	require("./specs/user.spec");
+	// 	require("./specs/quote.spec");
+	// });
 });
