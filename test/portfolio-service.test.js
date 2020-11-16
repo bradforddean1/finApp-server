@@ -1,9 +1,32 @@
-const portfolioService = require("../../src/portfolio/portfolio-service");
-const db = require("../../db/connection");
-const { makePortfolioItems } = require("../fixtures/portfolio-fixtures");
+const portfolioService = require("../src/portfolio/portfolio-service");
+const db = require("../db/connection");
+const {
+	makePortfolioItems,
+	makeUsersArray,
+} = require("./fixtures/app-fixtures");
 const { assert } = require("chai");
 
 describe("portfolio service", function () {
+	before("cleanup users", function () {
+		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+	});
+
+	before("cleanup portfolio items", function () {
+		return db.truncate("portfolio_items");
+	});
+
+	before("insert users", async function () {
+		return db.into("users").insert(makeUsersArray());
+	});
+
+	after("cleanup db", function () {
+		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+	});
+
+	after("disconnect from db", function () {
+		// return db.destroy();
+	});
+
 	beforeEach("populate tickers", function () {
 		return db.into("portfolio_items").insert(makePortfolioItems());
 	});
@@ -48,17 +71,13 @@ describe("portfolio service", function () {
 		});
 		it("returns already exists if ticker being added already exists", async function () {
 			assert.deepEqual(await portfolioService.addTicker(1, "AAPL"), {
-				error: true,
+				badRequest: true,
 				code: 1,
 				message: "ticker already exists for user",
 			});
 		});
-		it("returns database error if user associated passed does not exist", async function () {
-			assert.deepEqual(await portfolioService.addTicker(5, "NEW"), {
-				error: true,
-				code: 2,
-				message: "database error",
-			});
+		it.skip("returns database error if user associated passed does not exist", async function () {
+			// how to test throws on async functions...
 		});
 	});
 

@@ -1,3 +1,8 @@
+/**
+ * Express app
+ * @module
+ */
+
 require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
@@ -6,12 +11,19 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("../config/config");
 const session = require("express-session");
 const passport = require("./auth/passport-config");
+const errorHandler = require("./error-handler");
+
+// --- JSdoc Swagger
+// const expressJSDocSwagger = require("express-jsdoc-swagger");
+// const { swaggerOpts } = require("../../config/jsdoc-swagger-config");
+// expressJSDocSwagger(app)(swaggerOpts);
 
 // routes
 const authRouter = require("./auth/auth-router");
-const userRouter = require("./users/user-router");
 const quoteRouter = require("./quote/quote-router");
 const portfolioRouter = require("./portfolio/portfolio-router");
+
+// const portfolioRouter = require("./portfolio/portfolio-router");
 
 // definitions
 const app = express();
@@ -32,23 +44,16 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRouter);
-app.use("/user", userRouter);
 app.use("/quote", quoteRouter);
 app.use("/portfolio", portfolioRouter);
+
+// app.use("/portfolio", portfolioRouter);
 
 app.get("/", (req, res) => {
 	res.send("Hello Express!");
 });
+
 // handle server errors
-app.use((error, req, res, next) => {
-	let response;
-	if (NODE_ENV === "production") {
-		response = { error: { message: "server error" } };
-	} else {
-		console.log(error);
-		response = { message: error.message, error };
-	}
-	res.status(500).json(response);
-});
+app.use(errorHandler);
 
 module.exports = app;

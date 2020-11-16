@@ -40,7 +40,56 @@ function makeMaliciousUser() {
 	};
 }
 
+function makePortfolioItems() {
+	return [
+		{
+			user_id: "1",
+			ticker: "AAPL",
+		},
+		{
+			user_id: "1",
+			ticker: "TSLA",
+		},
+		{
+			user_id: "1",
+			ticker: "FUN",
+		},
+	];
+}
+
+function makeQuoteKeysList() {
+	return [
+		"peNormalizedAnnual",
+		"pbAnnual",
+		"dividendPerShareAnnual",
+		"dividendYieldIndicatedAnnual",
+		"dividendPerShare5Y",
+		"dividendYield5Y",
+		"dividendGrowthRate5Y",
+		"epsBasicExclExtraItemsAnnual",
+		"epsGrowth3Y",
+		"epsGrowth5Y",
+		"epsGrowthTTMYoy",
+		"currentRatioAnnual",
+		"currentRatioQuarterly",
+		"country",
+		"currency",
+		"exchange",
+		"ipo",
+		"marketCapitalization",
+		"name",
+		"shareOutstanding",
+		"ticker",
+		"weburl",
+		"logo",
+		"finnhubIndustry",
+		"chartData",
+	];
+}
+
 module.exports = {
 	makeUsersArray,
 	makeMaliciousUser,
+	makePortfolioItems,
+	makeQuoteKeysList,
 };

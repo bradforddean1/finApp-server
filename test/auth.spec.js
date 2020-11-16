@@ -1,21 +1,28 @@
 const passportStub = require("passport-stub");
-const app = require("../../src/app");
-const db = require("../../db/connection");
+const app = require("../src/app");
+const db = require("../db/connection");
 const {
 	makeUsersArray,
 	makeMaliciousUser,
-} = require("../fixtures/app-fixtures");
+} = require("./fixtures/app-fixtures");
 
 passportStub.install(app);
 
 describe("Auth endpoints", () => {
-	before("cleanup", () => db("users").truncate());
+	before("cleanup", () =>
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE")
+	);
+
 	beforeEach("insert test users", () => {
 		return db.into("users").insert(makeUsersArray());
 	});
-	afterEach("cleanup", () => db("users").truncate());
-	after("insert users", () => {
-		return db.seed.run();
+
+	afterEach("cleanup users", function () {
+		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+	});
+
+	after("disconnect from db", () => {
+		// return db.destroy();
 	});
 
 	describe("POST /auth/register", () => {

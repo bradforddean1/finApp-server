@@ -1,6 +1,3 @@
-const portfolioService = require("../src/portfolio/portfolio-service");
-const { makePortfolioItems } = require("./fixtures/portfolio-fixtures");
-
 describe("auth service", () => {
 	describe("create user", () => {
 		it("adds new user to user table if does not already exist", () => {});
