@@ -59,6 +59,28 @@ function makePortfolioItems() {
 
 function makeQuoteKeysList() {
 	return [
+		"current",
+		"change",
+		"changePct",
+		"country",
+		"currency",
+		"exchange",
+		"ipo",
+		"marketCapitalization",
+		"name",
+		"shareOutstanding",
+		"ticker",
+		"weburl",
+		"logo",
+		"finnhubIndustry",
+	];
+}
+
+function makeProfileKeysList() {
+	return [
+		"current",
+		"change",
+		"changePct",
 		"peNormalizedAnnual",
 		"pbAnnual",
 		"dividendPerShareAnnual",
@@ -92,4 +114,5 @@ module.exports = {
 	makeMaliciousUser,
 	makePortfolioItems,
 	makeQuoteKeysList,
+	makeProfileKeysList,
 };

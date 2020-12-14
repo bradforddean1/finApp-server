@@ -1,23 +1,26 @@
 /**
- * Handler for Get /quote route
+ * Handlers for quote and profile routes
  * @module
  */
 
 const dayjs = require("dayjs");
-
+const { mergeData } = require("./quote-helpers");
 const {
 	getCompanyProfile2,
 	getStockCandles,
 	getBasicFinancials,
+	getQuote,
 } = require("../api/finnhub");
 
 /**
- * Fetches, trasnforms, and consolidates data for given ymbol
+ * Handles profile and current quote data retirval.
+ * Handles fetch and transform data for symbol
  * @param {string} symbol - Ticker symbol
  * @param {string} chartPeriod - Data period for chart data, accepts "month" or "year"
  * @returns {Promise} - Returns promise, resolves with quote object with company profile, financial data, and chart data for candles.
  */
-const handleGetQuote = (symbol, chartPeriod) => {
+const handleGetQuote = (symbol) => {
+	// Get Profile
 	const profile = getCompanyProfile2(symbol).then((apiResponse) => {
 		const filteredRes = {};
 
@@ -36,8 +39,12 @@ const handleGetQuote = (symbol, chartPeriod) => {
 		} = apiResponse;
 
 		if (!ticker) {
-			throw new Error(`no profile for ${symbol}`);
+			const err = new Error(`no profile for ${symbol}`);
+			err.code = 1;
+			throw err;
 		}
+
+		const website = weburl.split("/")[2];
 
 		Object.assign(filteredRes, { country });
 		Object.assign(filteredRes, { currency });
@@ -47,18 +54,58 @@ const handleGetQuote = (symbol, chartPeriod) => {
 		Object.assign(filteredRes, { name });
 		Object.assign(filteredRes, { shareOutstanding });
 		Object.assign(filteredRes, { ticker });
-		Object.assign(filteredRes, { weburl });
+		Object.assign(filteredRes, { website });
 		Object.assign(filteredRes, { logo });
 		Object.assign(filteredRes, { finnhubIndustry });
 
-		return filteredRes; // pull out desired
+		return filteredRes;
+
+		// Errors are not caught for getProfie2 If profile pull is not successful
+		// handleGetQuote should fail.
 	});
 
-	/*
-	 * NO CATCH: If profile pull is not successful handle get quote should fail.  Additional
-	 * queries i.e. candles/financials can fail and return partial quote.
-	 */
+	const quote = getQuote(symbol)
+		.then((apiResponse) => {
+			const filteredRes = {};
+			const { c, pc } = apiResponse;
 
+			const current = "$".concat(c.toFixed(2).toString());
+			const change = (c - pc).toFixed(2).toString();
+			const changePct = (((c - pc) / pc) * 100)
+				.toFixed(2)
+				.toString()
+				.concat("%");
+
+			Object.assign(filteredRes, { current });
+			Object.assign(filteredRes, { change });
+			Object.assign(filteredRes, { changePct });
+
+			return filteredRes;
+		})
+		.catch((err) => {
+			return {};
+		});
+
+	// Return one object with all of the query data merged.
+	return mergeData([profile, quote]);
+};
+
+/**
+ * Handles profile and current quote data retirval with financial profile and chart data.
+ * Handles fetch and transform data for symbol
+ * @param {string} symbol - Ticker symbol
+ * @param {string} chartPeriod - Data period for chart data, accepts "month" or "year"
+ * @returns {Promise} - Returns promise, resolves with quote object with company profile, financial data, and chart data for candles.
+ */
+const handleGetProfile = (symbol, chartPeriod) => {
+	// Get results from handleGetQuote - handleGetProfile adds to handleGetQuote.
+	const quote = handleGetQuote(symbol);
+
+	// Errors are not caught for handleGetQuote. If quote pull is not successful
+	// handle getSecuirityDetail should fail.  Additional queries i.e. candles/financials
+	// can fail and return partial quote.
+
+	// Get Candles - handleGetQuote can
 	const today = dayjs().unix();
 	let start = dayjs().unix();
 
@@ -82,6 +129,7 @@ const handleGetQuote = (symbol, chartPeriod) => {
 		});
 	getStockCandles;
 
+	// Get financials
 	const financials = getBasicFinancials(symbol)
 		.then((apiResponse) => {
 			const filteredRes = {};
@@ -129,15 +177,8 @@ const handleGetQuote = (symbol, chartPeriod) => {
 			return {};
 		});
 
-	return Promise.all([profile, candles, financials]).then((allData) => {
-		//need to handle if get quote fails for profile then should stop whole thing.
-
-		const summary = {};
-		for (const dataPoint of allData) {
-			Object.assign(summary, dataPoint);
-		}
-		return summary;
-	});
+	// Return one object with all of the query data merged.
+	return mergeData([candles, financials, quote]);
 };
 
-module.exports = { handleGetQuote };
+module.exports = { handleGetQuote, handleGetProfile };

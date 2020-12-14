@@ -36,11 +36,9 @@ module.exports = {
 			})
 			.catch((err) => {
 				if (err.code == 23505) {
-					return {
-						badRequest: true,
-						code: 1,
-						message: "ticker already exists for user",
-					};
+					const errCode2 = new Error("ticker already exists for user");
+					errCode2.code = 2;
+					throw errCode2;
 				} else {
 					logger.error(err);
 					throw new Error(

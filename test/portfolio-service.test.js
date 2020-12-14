@@ -69,12 +69,15 @@ describe("portfolio service", function () {
 				new Date().toLocaleString()
 			);
 		});
-		it("returns already exists if ticker being added already exists", async function () {
-			assert.deepEqual(await portfolioService.addTicker(1, "AAPL"), {
-				badRequest: true,
-				code: 1,
-				message: "ticker already exists for user",
-			});
+		it("throws already exists if ticker being added already exists", async function () {
+			portfolioService
+				.addTicker(1, "AAPL")
+				.then(() => {
+					assert.fail("Expecteed err to throw");
+				})
+				.catch((err) => {
+					assert.deepEqual(err.message, "ticker already exists for user");
+				});
 		});
 		it.skip("returns database error if user associated passed does not exist", async function () {
 			// how to test throws on async functions...

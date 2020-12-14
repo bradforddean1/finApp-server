@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"docs": "jsdoc -c jsdoc.conf.json",
-		"test": "env NODE_ENV=test mocha --require test/setup.js",
+		"test": "env NODE_ENV=test mocha --require test/setup.js --exit",
 		"dev": "nodemon src/server.js",
 		"start": "node src/server.js",
 		"migrate": "postgrator --config config/postgrator-config.js",

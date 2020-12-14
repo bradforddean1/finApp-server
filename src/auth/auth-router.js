@@ -15,12 +15,12 @@ function handleResponse(res, code, statusMsg) {
 }
 
 authRouter
-	.route("/auth/register")
+	.route("/register")
 	/**
 	 * Register a new user
 	 *
 	 * @name Register - New User
-	 * @route {POST} /register
+	 * @route {POST} /auth/register
 	 * @authentication This route does not require authentication
 	 */
 	.post(
@@ -60,28 +60,42 @@ authRouter
 	);
 
 authRouter
-	.route("/auth/login")
+	.route("/login")
 	/**
 	 * Login a user
 	 *
 	 * @name Login
-	 * @route {POST} /login
+	 * @route {POST} /auth/login
 	 * @authentication This route does not require authentication
 	 */
-	.post(bodyParser, loginRedirect, passport.authenticate("local"), function (
-		req,
-		res
-	) {
-		res.status(200).json({ status: "success" });
-	});
+	.post(
+		bodyParser,
+		loginRedirect,
+		function (req, res) {
+			AuthService.findUserByUsername(xss(req.body.username)).then(
+				(response) => {
+					if (response) {
+						next();
+					} else {
+						return handleResponse(res, 401, "unregistered");
+					}
+				}
+			);
+		},
+		passport.authenticate("local"),
+		function (req, res) {
+			passport.authenticate("local");
+			res.status(200).json({ status: "success" });
+		}
+	);
 
 authRouter
-	.route("/auth/logout")
+	.route("/logout")
 	/**
 	 * Logout a user
 	 *
 	 * @name Logout
-	 * @route {GET} /logout
+	 * @route {GET} /auth/logout
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */ .get(loginRequired, (req, res, next) => {
 		req.logout();

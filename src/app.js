@@ -32,7 +32,18 @@ const morganSetting = NODE_ENV === "production" ? "tiny" : "dev";
 // Middlewares
 app.use(morgan(morganSetting));
 app.use(helmet());
-app.use(cors());
+// app.use(cors());
+// CORS
+app.use(function (req, res, next) {
+	res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+	res.header("Access-Control-Allow-Credentials", "true");
+	res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
+	res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE");
+	if (req.method === "OPTIONS") {
+		return res.send(204);
+	}
+	next();
+});
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET_KEY,
@@ -43,9 +54,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/auth", authRouter);
-app.use("/quote", quoteRouter);
-app.use("/portfolio", portfolioRouter);
+app.use("/api/auth", authRouter);
+app.use("/api/quote", quoteRouter);
+app.use("/api/portfolio", portfolioRouter);
 
 // app.use("/portfolio", portfolioRouter);
 

@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
  * @returns {boolean} - True if login credentials match.
  */
 function comparePass(userPassword, databasePassword) {
-	console.log("LOGIN: ", bcrypt.compareSync(userPassword, databasePassword));
+	// console.log("LOGIN: ", bcrypt.compareSync(userPassword, databasePassword));
 	return bcrypt.compareSync(userPassword, databasePassword);
 }
 

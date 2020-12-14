@@ -11,7 +11,7 @@ const GOOGLE_KEYS = {
 };
 const SESSION_SECRET_KEY = process.env.SESSION_SECRET_KEY;
 const US_FUNDAMENTALS_API_KEY = process.env.US_FUNDAMENTALS_API_KEY;
-const FINHUBB_API_KEY = process.env.FINHUBB_API_KEY;
+const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_API_KEY_SANDBOX = process.env.FINNHUB_API_KEY_SANDBOX;
 
 module.exports = {
@@ -20,6 +20,6 @@ module.exports = {
 	DB_URL,
 	DB_URL_TEST,
 	SESSION_SECRET_KEY,
-	FINHUBB_API_KEY,
+	FINNHUB_API_KEY,
 	FINNHUB_API_KEY_SANDBOX,
 };

@@ -22,7 +22,9 @@ const {
 const queryFinnhub = (endpoint, params) => {
 	const BASE_URL = "https://finnhub.io//api/v1/";
 	const api_key =
-		NODE_ENV === "test" ? FINNHUB_API_KEY_SANDBOX : FINNHUB_API_KEY;
+		NODE_ENV === "test" || NODE_ENV === "dev"
+			? FINNHUB_API_KEY_SANDBOX
+			: FINNHUB_API_KEY;
 
 	const headers = { "X-Finnhub-Token": api_key };
 
@@ -44,7 +46,9 @@ const queryFinnhub = (endpoint, params) => {
 	);
 
 	return fetch(queryString, requestOptions)
-		.then((response) => response.json())
+		.then((response) => {
+			return response.json();
+		})
 		.catch((error) => {
 			/*
 			 * Logs api error and throws new error, depending on inquiry made we may or may not
@@ -55,6 +59,16 @@ const queryFinnhub = (endpoint, params) => {
 				`FINHUB API ERROR -- API call failed when requesting ${queryString}`
 			);
 		});
+};
+
+/**
+ * Query Finhubb API "Quote" endpoint
+ * @param {string} symbol - Ticker symbol
+ * @returns {Promise} - Query results
+ */
+const getQuote = (symbol) => {
+	const params = { symbol: symbol };
+	return queryFinnhub("quote", params);
 };
 
 /**
@@ -95,4 +109,9 @@ const getBasicFinancials = (symbol) => {
 	return queryFinnhub("stock/metric", params);
 };
 
-module.exports = { getCompanyProfile2, getStockCandles, getBasicFinancials };
+module.exports = {
+	getCompanyProfile2,
+	getStockCandles,
+	getBasicFinancials,
+	getQuote,
+};

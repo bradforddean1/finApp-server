@@ -10,6 +10,7 @@ const { PORT } = require("../config/config");
 
 // app.set("db", db);
 
+// Web Scoket
 app.listen(PORT, () => {
 	console.log(`Server listening on port ${PORT}`);
 });

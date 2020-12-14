@@ -5,6 +5,7 @@
 
 const portfolioRouter = require("express").Router();
 const PortfolioService = require("./portfolio-service");
+const { handleGetPortfolio } = require("./portfolio-handlers");
 const { loginRequired } = require("../auth/helpers");
 const bodyParser = require("express").json();
 
@@ -18,10 +19,11 @@ portfolioRouter
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
 	.get(loginRequired, (req, res, next) => {
-		PortfolioService.getTickersbyUser(req.user.id).then((tickers) => {
-			return res.status(200).json(tickers);
+		return handleGetPortfolio(req.user.id).then((portfolio) => {
+			return res.status(200).json(portfolio);
 		});
 	})
+
 	/**
 	 * Add new to saved tickers
 	 *
@@ -33,7 +35,7 @@ portfolioRouter
 		const ticker = req.body.ticker;
 
 		function sendValFailure(issue) {
-			return res.status(400).json({ status: "invalid request", detail: issue });
+			return res.status(400).json({ status: "invalid symbol", detail: issue });
 		}
 
 		if (!ticker) {
@@ -48,20 +50,20 @@ portfolioRouter
 			return sendValFailure("ticker symbol has max 5 char");
 		}
 
-		PortfolioService.addTicker(req.user.id, ticker).then((dbResponse) => {
-			if (dbResponse.badRequest) {
+		PortfolioService.addTicker(req.user.id, ticker)
+			.then((dbResponse) => {
 				return res
-					.status(400)
-					.json({ status: "bad request", detail: dbResponse.message });
-
-				// *** q here - is this necessary or should just let db error float up stack and drrop the catch stmt.
-				// return res.status(500).json({ status: "unexpected error occured" });
-			}
-
-			return res
-				.status(201)
-				.json({ status: "success", newItemId: dbResponse[0].id });
-		});
+					.status(201)
+					.json({ status: "success", newItemId: dbResponse[0].id });
+			})
+			.catch((err) => {
+				if (err.code === 2) {
+					return res.status(400).json({
+						status: err.message,
+					});
+				}
+				throw err;
+			});
 	});
 
 portfolioRouter

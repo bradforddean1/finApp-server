@@ -16,7 +16,7 @@ describe("portfolio endpoints", function () {
 	});
 
 	before("cleanup portfolio items", function () {
-		return db.truncate("portfolio_items");
+		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
 	before("insert users", async function () {
@@ -43,7 +43,7 @@ describe("portfolio endpoints", function () {
 		return passportStub.logout();
 	});
 
-	describe("GET /portfolio", function () {
+	describe.only("GET /api/portfolio", function () {
 		it("should return a all tickers associated with user passed", function () {
 			passportStub.login(1);
 			const expected = [
@@ -59,24 +59,25 @@ describe("portfolio endpoints", function () {
 			];
 
 			return supertest(app)
-				.get("/portfolio")
+				.get("/api/portfolio")
 				.expect(200, expected)
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/portfolio").expect(401);
+			return supertest(app).get("/api/portfolio").expect(401);
 		});
 	});
-	describe("POST /portfolio", function () {
+
+	describe("POST /api/portfolio", function () {
 		it("should return 400 if no ticker symbol provided", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send("")
 				.expect(400, {
-					status: "invalid request",
+					status: "invalid symbol",
 					detail: "ticker symbol is requeried",
 				})
 				.expect("Content-Type", "application/json; charset=utf-8");
@@ -86,10 +87,10 @@ describe("portfolio endpoints", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send({ ticker: ["NEW"] })
 				.expect(400, {
-					status: "invalid request",
+					status: "invalid symbol",
 					detail: "ticker symbol must be alpha-numeric",
 				})
 				.expect("Content-Type", "application/json; charset=utf-8");
@@ -99,10 +100,10 @@ describe("portfolio endpoints", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send({ ticker: "TOOLONG" })
 				.expect(400, {
-					status: "invalid request",
+					status: "invalid symbol",
 					detail: "ticker symbol has max 5 char",
 				})
 				.expect("Content-Type", "application/json; charset=utf-8");
@@ -112,11 +113,10 @@ describe("portfolio endpoints", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send({ ticker: "AAPL" })
 				.expect(400, {
-					status: "bad request",
-					detail: "ticker already exists for user",
+					status: "ticker already exists for user",
 				})
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
@@ -125,7 +125,7 @@ describe("portfolio endpoints", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send({ ticker: "NEW" })
 				.expect(201)
 				.expect("Content-Type", "application/json; charset=utf-8")
@@ -138,7 +138,7 @@ describe("portfolio endpoints", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.post("/portfolio")
+				.post("/api/portfolio")
 				.send({ ticker: "NEW" })
 				.then(async function (res) {
 					const allTickers = await db
@@ -152,22 +152,22 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/portfolio").expect(401);
+			return supertest(app).get("/api/portfolio").expect(401);
 		});
 	});
 
-	describe("DELETE /portfolio", function () {
+	describe("DELETE /api/portfolio", function () {
 		it("should return success", function () {
 			passportStub.login(1);
 
-			return supertest(app).delete("/portfolio/aapl").expect(204);
+			return supertest(app).delete("/api/portfolio/aapl").expect(204);
 		});
 
 		it("should be removed from the database", function () {
 			passportStub.login(1);
 
 			return supertest(app)
-				.delete("/portfolio/aapl")
+				.delete("/api/portfolio/aapl")
 				.then(async function () {
 					const allTickers = await db
 						.from("portfolio_items")
@@ -178,7 +178,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/portfolio").expect(401);
+			return supertest(app).get("/api/portfolio").expect(401);
 		});
 	});
 });

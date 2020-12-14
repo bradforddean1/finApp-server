@@ -3,11 +3,40 @@ const {
 	getCompanyProfile2,
 	getStockCandles,
 	getBasicFinancials,
+	getQuote,
 } = require("../src/api/finnhub");
 
 describe("finnhub api", function () {
+	describe("get quote", () => {
+		it("returns quote", async function () {
+			await getQuote("AAPL")
+				.then((response) => {
+					assert.isAbove(response.c, 0);
+					assert.isAbove(response.h, 0);
+					assert.isAbove(response.l, 0);
+					assert.isAbove(response.o, 0);
+					assert.isAbove(response.pc, 0);
+					assert.isAbove(response.t, 0);
+				})
+				.catch(() => {
+					assert.fail("expected promise to resolve");
+				});
+			// assert includes other key params;
+		});
+		it("handles stock not found", async function () {
+			assert.deepEqual(await getQuote("BAD"), {
+				c: 0,
+				h: 0,
+				l: 0,
+				o: 0,
+				pc: 0,
+				t: 0,
+			});
+		});
+	});
+
 	describe("get company profile (2)", () => {
-		it("returns stock quote", async function () {
+		it("returns profile", async function () {
 			assert.include(await getCompanyProfile2("AAPL"), { ticker: "AAPL" });
 			// assert includes other key params;
 		});
