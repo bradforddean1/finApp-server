@@ -1,7 +1,7 @@
 {
 	"name": "finapp",
 	"version": "1.0.0",
-	"description": "",
+	"description": "Stocks under control",
 	"main": "index.js",
 	"scripts": {
 		"docs": "jsdoc -c jsdoc.conf.json",
@@ -41,5 +41,8 @@
 		"passport-stub": "^1.1.1",
 		"postgrator-cli": "^3.2.0",
 		"supertest": "^5.0.0"
+	},
+	"engines": {
+		"node": "12.18.3"
 	}
 }
