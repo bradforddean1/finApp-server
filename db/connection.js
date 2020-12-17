@@ -4,7 +4,11 @@
  */
 
 const knex = require("knex");
-const { NODE_ENV, DB_URL, DB_URL_TEST } = require("../config/config");
+const {
+	NODE_ENV,
+	DATABASE_URL,
+	DATABASE_URL_TEST,
+} = require("../config/config");
 
 /**
  * Knex database connection - returns connection to test/live database
@@ -12,7 +16,7 @@ const { NODE_ENV, DB_URL, DB_URL_TEST } = require("../config/config");
  */
 const db = knex({
 	client: "pg",
-	connection: NODE_ENV === "test" ? DB_URL_TEST : DB_URL,
+	connection: NODE_ENV === "test" ? DATABASE_URL_TEST : DATABASE_URL,
 });
 
 module.exports = db;

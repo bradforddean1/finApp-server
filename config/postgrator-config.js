@@ -1,7 +1,7 @@
-const { NODE_ENV, DB_URL_TEST, DB_URL } = require("./config");
-console.log(DB_URL_TEST);
+const { NODE_ENV, DATABASE_URL_TEST, DATABASE_URL } = require("./config");
+console.log(DATABASE_URL_TEST);
 module.exports = {
 	migrationsDirectory: "db/migrations",
 	driver: "pg",
-	connectionString: NODE_ENV === "test" ? DB_URL_TEST : DB_URL,
+	connectionString: NODE_ENV === "test" ? DATABASE_URL_TEST : DATABASE_URL,
 };
