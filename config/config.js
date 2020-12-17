@@ -10,6 +10,7 @@ const DATABASE_URL_TEST =
 const SESSION_SECRET_KEY = process.env.SESSION_SECRET_KEY;
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_API_KEY_SANDBOX = process.env.FINNHUB_API_KEY_SANDBOX;
+const WWW_ROOT = process.env.WWW_ROOT || "http://localhost:3000";
 
 module.exports = {
 	NODE_ENV,
@@ -19,4 +20,5 @@ module.exports = {
 	SESSION_SECRET_KEY,
 	FINNHUB_API_KEY,
 	FINNHUB_API_KEY_SANDBOX,
+	WWW_ROOT,
 };

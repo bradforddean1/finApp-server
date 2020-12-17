@@ -8,7 +8,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
-const { NODE_ENV } = require("../config/config");
+const { NODE_ENV, WWW_ROOT } = require("../config/config");
 const session = require("express-session");
 const passport = require("./auth/passport-config");
 const errorHandler = require("./error-handler");
@@ -35,10 +35,10 @@ app.use(helmet());
 // app.use(cors());
 // CORS
 app.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+	res.header("Access-Control-Allow-Origin", WWW_ROOT);
 	res.header("Access-Control-Allow-Credentials", "true");
 	res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
-	res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE");
+	res.header("Access-Control-Allow-Methods", "GET,POST,DELETE");
 	if (req.method === "OPTIONS") {
 		return res.send(204);
 	}
