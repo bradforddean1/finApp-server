@@ -35,6 +35,7 @@ app.use(helmet());
 // app.use(cors());
 // CORS
 app.use(function (req, res, next) {
+	console.log("CR: ", CLIENT_ROOT);
 	res.header("Access-Control-Allow-Origin", CLIENT_ROOT);
 	res.header("Access-Control-Allow-Credentials", "true");
 	res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
