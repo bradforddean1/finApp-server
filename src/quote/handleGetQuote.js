@@ -12,6 +12,13 @@ const {
 	getQuote,
 } = require("../api/finnhub");
 
+const formatCurrency = (number, currency, country) => {
+	new Intl.NumberFormat(country, {
+		style: "currency",
+		currency: currency,
+	}).format(number);
+};
+
 /**
  * Handles profile and current quote data retirval.
  * Handles fetch and transform data for symbol
@@ -50,7 +57,13 @@ const handleGetQuote = (symbol) => {
 		Object.assign(filteredRes, { currency });
 		Object.assign(filteredRes, { exchange });
 		Object.assign(filteredRes, { ipo });
-		Object.assign(filteredRes, { marketCapitalization });
+		Object.assign(filteredRes, {
+			marketCapitalization: formatCurrency(
+				marketCapitalization,
+				currency,
+				country
+			),
+		});
 		Object.assign(filteredRes, { name });
 		Object.assign(filteredRes, { shareOutstanding });
 		Object.assign(filteredRes, { ticker });
