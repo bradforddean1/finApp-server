@@ -32,7 +32,6 @@ function getHash(password) {
  */
 function loginRequired(req, res, next) {
 	console.log("REQ-USER", req.user);
-
 	if (!req.user) {
 		return res.status(401).json({ status: "Please log in" });
 	}
@@ -49,7 +48,7 @@ function loginRequired(req, res, next) {
  */
 function loginRedirect(req, res, next) {
 	if (req.user) {
-		return res.status(401).json({ status: "You are already logged in" });
+		return res.status(401).json({ status: "already logged in" });
 	}
 	return next();
 }
