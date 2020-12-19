@@ -57,7 +57,6 @@ const handleGetQuote = (symbol) => {
 		Object.assign(filteredRes, { website });
 		Object.assign(filteredRes, { logo });
 		Object.assign(filteredRes, { finnhubIndustry });
-
 		return filteredRes;
 
 		// Errors are not caught for getProfie2 If profile pull is not successful

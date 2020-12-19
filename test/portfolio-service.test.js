@@ -8,31 +8,31 @@ const { assert } = require("chai");
 
 describe("portfolio service", function () {
 	before("cleanup users", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
 	before("cleanup portfolio items", function () {
-		return db.truncate("portfolio_items");
+		db.truncate("portfolio_items");
 	});
 
-	before("insert users", async function () {
-		return db.into("users").insert(makeUsersArray());
+	before("insert users", function () {
+		db.into("users").insert(makeUsersArray());
+	});
+
+	beforeEach("populate tickers", async function () {
+		db.into("portfolio_items").insert(makePortfolioItems());
+	});
+
+	afterEach("reset database", function () {
+		db.truncate("portfolio_items");
 	});
 
 	after("cleanup db", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
 	after("disconnect from db", function () {
 		// return db.destroy();
-	});
-
-	beforeEach("populate tickers", function () {
-		return db.into("portfolio_items").insert(makePortfolioItems());
-	});
-
-	afterEach("reset database", function () {
-		return db.truncate("portfolio_items");
 	});
 
 	describe("get all tickers for user", function () {

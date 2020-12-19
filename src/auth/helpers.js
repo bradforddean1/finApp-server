@@ -31,8 +31,9 @@ function getHash(password) {
  * @param {Function} next
  */
 function loginRequired(req, res, next) {
-	if (!req.isAuthenticated()) {
-		console.log("REQ:", req);
+	console.log("REQ-USER", req.user);
+
+	if (!req.user) {
 		return res.status(401).json({ status: "Please log in" });
 	}
 	return next();

@@ -11,10 +11,10 @@ passportStub.install(app);
 describe("GET /api/quote", function () {
 	// Common setup and teardown
 	before("cleanup", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 	before("insert users", function () {
-		return db.seed.run();
+		db.seed.run();
 	});
 	afterEach("logout", function () {
 		passportStub.logout();

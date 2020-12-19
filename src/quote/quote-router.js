@@ -18,7 +18,6 @@ quoteRouter
 	 */
 	.get(loginRequired, (req, res, next) => {
 		const ticker = req.params.symbol;
-		console.log("TICKER: ", req.params);
 
 		if (typeof ticker != "string" || ticker.length > 5) {
 			return res.status(400).json({
@@ -54,7 +53,6 @@ quoteRouter
  */
 quoteRouter.route("/:symbol/profile").get(loginRequired, (req, res, next) => {
 	const ticker = req.params.symbol;
-	console.log("TICKER: ", req.params);
 
 	if (typeof ticker != "string" || ticker.length > 5) {
 		return res.status(400).json({

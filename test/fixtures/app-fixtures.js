@@ -70,7 +70,7 @@ function makeQuoteKeysList() {
 		"name",
 		"shareOutstanding",
 		"ticker",
-		"weburl",
+		"website",
 		"logo",
 		"finnhubIndustry",
 	];

@@ -9,41 +9,37 @@ const { assert } = require("chai");
 
 passportStub.install(app);
 
-describe("portfolio endpoints", function () {
+describe.skip("portfolio endpoints", function () {
 	// Common setup and teardown
 	before("cleanup users", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
 	before("cleanup portfolio items", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+		db.raw("TRUNCATE TABLE portfolio_items RESTART IDENTITY CASCADE");
 	});
 
 	before("insert users", async function () {
-		return db.into("users").insert(makeUsersArray());
-	});
-
-	after("cleanup db", function () {
-		return db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
-	});
-
-	after("disconnect from db", function () {
-		// return db.destroy();
+		db.into("users").insert(makeUsersArray());
 	});
 
 	beforeEach("populate tickers", function () {
-		return db.into("portfolio_items").insert(makePortfolioItems());
+		db.into("portfolio_items").insert(makePortfolioItems());
 	});
 
 	afterEach("reset database", function () {
-		return db.truncate("portfolio_items");
+		db.raw("TRUNCATE TABLE portfolio_items RESTART IDENTITY CASCADE");
 	});
 
 	afterEach("logout", function () {
-		return passportStub.logout();
+		passportStub.logout();
 	});
 
-	describe.only("GET /api/portfolio", function () {
+	after("cleanup users", function () {
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+	});
+
+	describe("GET /api/portfolio", function () {
 		it("should return a all tickers associated with user passed", function () {
 			passportStub.login(1);
 			const expected = [
