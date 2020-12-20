@@ -1,8 +1,0 @@
-NODE_ENV=development
-PORT=8000
-DATABASE_URL="postgresql://bradforddean@localhost/finapp"
-DATABASE_URL_TEST="postgresql://bradforddean@localhost/finapp_test"
-SESSION_SECRET_KEY="|,\xf9\xbb|\xde;x\xb1\x85^\x8c#\xf8\x98@}\xab\xaev\xd2F\x0b\xa4"
-FINNHUB_API_KEY=bsmvnq7rh5r99fh1emf0
-FINNHUB_API_KEY_SANDBOX=sandbox_buetog748v6tiubst6e0
-CLIENT_ROOT="http://localhost:3000"
