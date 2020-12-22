@@ -32,6 +32,18 @@ const morganSetting = NODE_ENV === "production" ? "tiny" : "dev";
 // Middlewares
 app.use(morgan(morganSetting));
 app.use(helmet());
+
+app.use(
+	session({
+		secret: process.env.SESSION_SECRET_KEY,
+		resave: false,
+		saveUninitialized: true,
+		// cookie: { maxAge: 60000 },
+	})
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // app.use(cors());
 // CORS
 app.use(function (req, res, next) {
@@ -44,16 +56,6 @@ app.use(function (req, res, next) {
 	}
 	next();
 });
-app.use(
-	session({
-		secret: process.env.SESSION_SECRET_KEY,
-		resave: false,
-		saveUninitialized: true,
-		// cookie: { maxAge: 60000 },
-	})
-);
-app.use(passport.initialize());
-app.use(passport.session());
 
 app.use("/api/auth", authRouter);
 app.use("/api/quote", quoteRouter);

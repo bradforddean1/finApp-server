@@ -8,7 +8,7 @@ const {
 
 passportStub.install(app);
 
-describe("GET /api/quote", function () {
+describe.only("GET /api/quote", function () {
 	// Common setup and teardown
 	before("cleanup", function () {
 		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
@@ -55,7 +55,6 @@ describe("GET /api/quote", function () {
 
 		it("should return 404 if no ticker provided", function () {
 			passportStub.login(1);
-
 			return supertest(app).get("/api/quote").expect(404);
 		});
 
