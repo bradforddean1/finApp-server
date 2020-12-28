@@ -4,15 +4,18 @@
 	"description": "Stocks under control",
 	"main": "index.js",
 	"scripts": {
+		"db:create:dev": "psql postgres -c 'CREATE DATABASE finapp_dev'",
+		"db:create:test": "psql postgres -c 'CREATE DATABASE finapp_test'",
 		"deploy": "git push heroku main",
-		"postdeploy": "npm run migrate:production",
-		"docs": "jsdoc -c jsdoc.conf.json",
-		"test": "env NODE_ENV=test mocha --require test/setup.js --exit",
 		"dev": "nodemon src/server.js",
-		"start": "node src/server.js",
+		"docs": "jsdoc -c jsdoc.conf.json",
 		"migrate": "postgrator --config config/postgrator-config.js",
 		"migrate:test": "env NODE_ENV=test npm run migrate",
-		"migrate:production": "heroku run npm run migrate"
+		"migrate:production": "heroku run npm run migrate",
+		"postdeploy": "npm run migrate:production",
+		"seed": "npx knex seed:run",
+		"start": "node src/server.js",
+		"test": "env NODE_ENV=test mocha --require test/setup.js --exit"
 	},
 	"keywords": [],
 	"author": "",
