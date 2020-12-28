@@ -79,7 +79,7 @@ describe.skip("portfolio endpoints", function () {
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
 
-		it("should return 400 if no ticker symbol provided is not a string", function () {
+		it("should return 400 if ticker symbol provided is not a string", function () {
 			passportStub.login(1);
 
 			return supertest(app)
