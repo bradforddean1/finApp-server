@@ -1,7 +1,15 @@
-const { NODE_ENV, DATABASE_URL_TEST, DATABASE_URL } = require("./config");
-console.log(DATABASE_URL_TEST);
+// TODO
+// This file partially duplicates the contents of `knexfile.js` (see comments there)
+// It is used only by `npm run migrate`
+
+const {
+    DATABASE_URL,
+    DATABASE_URL_TEST,
+    NODE_ENV
+} = require("./config");
+
 module.exports = {
-	migrationsDirectory: "db/migrations",
-	driver: "pg",
-	connectionString: NODE_ENV === "test" ? DATABASE_URL_TEST : DATABASE_URL,
+  connectionString: NODE_ENV === "test" ? DATABASE_URL_TEST : DATABASE_URL,
+  driver: "pg",
+	migrationDirectory: "db/migrations"
 };
