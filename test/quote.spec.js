@@ -1,109 +1,187 @@
-const passportStub = require("passport-stub");
-const app = require("../src/app");
 const db = require("../db/connection");
 const {
 	makeQuoteKeysList,
 	makeProfileKeysList,
 } = require("./fixtures/app-fixtures");
 
-passportStub.install(app);
+describe.only("test quote and profile endpoints", function () {
 
-describe.only("GET /api/quote", function () {
-	// Common setup and teardown
-	before("cleanup", function () {
-		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
-	});
-	before("insert users", function () {
-		db.seed.run();
-	});
-	afterEach("logout", function () {
-		passportStub.logout();
-	});
 	after("disconnect from db", function () {
 		// db.destroy();
-	});
-	describe("Get Quote", () => {
-		it("should return a quote", function () {
-			passportStub.login(1);
+  });
+  
+	afterEach("logout", function () {
+		// passportStub.logout();
+  });
 
-			return supertest(app)
-				.get("/api/quote/AAPL")
-				.expect(200)
-				.expect("Content-Type", "application/json; charset=utf-8")
-				.then(function (res) {
-					assert.deepInclude(res.body, {
-						status: "success",
-					});
-					assert.deepInclude(res.body.quote, {
-						ticker: "AAPL",
-					});
-					assert.hasAllKeys(res.body.quote, makeQuoteKeysList());
-				});
-		});
+	before("cleanup", function () {
+		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+  });
+  
+	before("insert users", function () {
+    // db.seed.run();  // TODO this causes the error "done() called multiple times in hook" 
+  });
 
-		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/api/quote/AAPL").expect(401);
-		});
+  let Cookies;
 
-		it("should return 'no match' if no match to ticker found", function () {
-			passportStub.login(1);
+/* ****************************************************************************
+*                               QUOTE ENDPOINTS                               *
+**************************************************************************** */
+  describe ('test quote endpoints', function() {
 
-			return supertest(app)
-				.get("/api/quote/BAD")
-				.expect(200, { status: "no match" });
-		});
+    const authCreds                 = { password: 'johnson123', username: 'steve' };
+    const authEndpoint              = '/api/auth/login';
+    const badEndpoint               = '/api/quote/bad';
+    const malformedSymbolEndpoint   = '/api/quote/AAPLXYZ';
+    const missingSymbolEndpoint     = '/api/quote';
+    const validSymbolEndpoint       = '/api/quote/AAPL';
 
-		it("should return 404 if no ticker provided", function () {
-			passportStub.login(1);
-			return supertest(app).get("/api/quote").expect(404);
-		});
+//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -> LOGIN A USER
+// We use this to set cookies which the other tests in this file need access to
+    it ('should login a user and store the session in a cookie', function(done) {
+      supertest
+        .post(authEndpoint)
+        .set('Content-type', 'application/json')
+        .send(authCreds)
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 200);
+          Cookies = res.header['set-cookie'];
+          done();
+        });
+    });
 
-		it("should return 400 if ticker provided in invalid format", function () {
-			passportStub.login(1);
+// - - - - - - - - - - - - - - - - - - - - -> ALLOW ACCESS TO A PROTECTED ROUTE
+    it ('should return quote data for a logged-in user', function(done) {
+      const req = supertest.get(validSymbolEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 200);
+          assert.deepInclude(res.body, { status: "success" });
+          assert.deepInclude(res.body.quote, { ticker: "AAPL" });
+          assert.hasAllKeys(res.body.quote, makeQuoteKeysList());    
+          done();
+        });
+    });
 
-			return supertest(app).get("/api/quote/VERYBAD").expect(400, {
-				status: "invalid symbol",
-			});
-		});
-	});
+//  - - - - - - - - - - - - - - - - - - - - -> DENY ACCESS TO A PROTECTED ROUTE
+    it ('should return a 401 for an unauthenticated user', function(done) {
+      const req = supertest.get(validSymbolEndpoint);
+      // The reason this acts as expected is because we are not setting cookies
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 401);
+          done();
+        });
+    });
 
-	describe("Get Profile", () => {
-		it("should return a quote", function () {
-			passportStub.login(1);
+//  - - - - - - - - - - - - - - - - - - - - - - - -> NON-EXISTENT TICKER SYMBOL
+    it ('should return \'no match\' for a logged-in user if no match to ticker is found', function(done) {
+      const req = supertest.get(badEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 200);
+          assert.deepInclude(res.body, { status: "no match" });
+          done();
+        });
+    });
 
-			return supertest(app)
-				.get("/api/quote/AAPL/profile")
-				.expect(200)
-				.expect("Content-Type", "application/json; charset=utf-8")
-				.then(function (res) {
-					assert.deepInclude(res.body, {
-						status: "success",
-					});
-					assert.deepInclude(res.body.profile, {
-						ticker: "AAPL",
-					});
+// - - - - - - - - - - - - - - - - - - - - - - - - -> NO TICKER SYMBOL PROVIDED
+    it ('should return a 404 for a logged-in user if no ticker symbol is provided', function(done) {
+      const req = supertest.get(missingSymbolEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 404);
+          done();
+        });
+    });
+
+//  - - - - - - - - - - - - - - - - - - - - -> MALFORMED TICKER SYMBOL PROVIDED
+    it ('should return a 400 for a logged-in user if the provided ticker symbol is in an invalid format', function(done) {
+      const req = supertest.get(malformedSymbolEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 400);
+          assert.deepInclude(res.body, { status: "invalid symbol" });
+          done();
+        });
+    });
+
+  });
+
+
+/* ****************************************************************************
+*                              PROFILE ENDPOINTS                              *
+**************************************************************************** */
+  describe ('test profile endpoints', function() {
+
+    const badProfileEndpoint              = '/api/quote/bad/profile';
+    const malformedProfileSymbolEndpoint  = '/api/quote/AAPLXYZ/profile';
+    const validProfileEndpoint            = '/api/quote/AAPL/profile';
+
+// - - - - - - - - - - - - - - - - - - - - -> ALLOW ACCESS TO A PROTECTED ROUTE
+    it ('should return profile data for a logged-in user', function(done) {
+      const req = supertest.get(validProfileEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 200);
+					assert.deepInclude(res.body, { status: "success" });
+					assert.deepInclude(res.body.profile, { ticker: "AAPL" });
 					assert.hasAllKeys(res.body.profile, makeProfileKeysList());
-				});
+          done();
+        });
+    });
+
+//  - - - - - - - - - - - - - - - - - - - - -> DENY ACCESS TO A PROTECTED ROUTE
+		it("should return a 401 for an unauthenticated user", function (done) {
+      const req = supertest.get(validProfileEndpoint);
+      // The reason this acts as expected is because we are not setting cookies
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 401);
+          done();
+        });
 		});
 
-		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/api/quote/AAPL/profile").expect(401);
-		});
+//  - - - - - - - - - - - - - - - - - - - - - - - -> NON-EXISTENT TICKER SYMBOL
+    it ('should return \'no match\' for a logged-in user if no match to ticker is found', function(done) {
+      const req = supertest.get(badProfileEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 200);
+          assert.deepInclude(res.body, { status: "no match" });
+          done();
+        });
+    });
 
-		it("should return 'no match' if no match to ticker found", function () {
-			passportStub.login(1);
+//  - - - - - - - - - - - - - - - - - - - - -> MALFORMED TICKER SYMBOL PROVIDED
+    it ('should return a 400 for a logged-in user if the provided ticker symbol is in an invalid format', function(done) {
+      const req = supertest.get(malformedProfileSymbolEndpoint);
+      req.cookies = Cookies;
+      req.set('Accept', 'application/json')
+        .end(function(err, res) {
+          if (err) return done(err);
+          assert.equal(res.status, 400);
+          assert.deepInclude(res.body, { status: "invalid symbol" });
+          done();
+        });
+    });
 
-			return supertest(app)
-				.get("/api/quote/BAD/profile")
-				.expect(200, { status: "no match" });
-		});
 
-		it("should return 400 if ticker provided in invalid format", function () {
-			passportStub.login(1);
+  });
 
-			return supertest(app).get("/api/quote/VERYBAD/profile").expect(400, {
-				status: "invalid symbol",
-			});
-		});
-	});
 });

@@ -43,7 +43,6 @@ const handleGetQuote = (symbol) => {
 			err.code = 1;
 			throw err;
 		}
-
 		return apiResponse;
 	});
 	// Errors are not caught for getProfie2 If profile pull is not successful
