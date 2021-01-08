@@ -147,6 +147,10 @@ describe.skip("portfolio endpoints", function () {
 				});
 		});
 
+		it("should thwart xss attack", function () {
+			return assert.throw();
+		});
+
 		it("should throw an error if a user is not logged in", function () {
 			return supertest(app).get("/api/portfolio").expect(401);
 		});
@@ -171,6 +175,10 @@ describe.skip("portfolio endpoints", function () {
 						.where("user_id", 1);
 					return assert.notDeepInclude(allTickers, "NEW");
 				});
+		});
+
+		it("should thwart xss attack", function () {
+			return assert.throw();
 		});
 
 		it("should throw an error if a user is not logged in", function () {

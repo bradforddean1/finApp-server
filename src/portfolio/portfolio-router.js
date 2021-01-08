@@ -8,6 +8,7 @@ const PortfolioService = require("./portfolio-service");
 const { handleGetPortfolio } = require("./portfolio-handlers");
 const { loginRequired } = require("../auth/helpers");
 const bodyParser = require("express").json();
+const xss = require("xss");
 
 portfolioRouter
 	.route("/")
@@ -76,8 +77,9 @@ portfolioRouter
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
 	.delete(loginRequired, (req, res) => {
-		PortfolioService.deleteTicker(req.user.id, "AAPL").then((dbResponse) => {
-			return res.status(204).json(dbResponse);
+		const ticker = xss(req.params.ticker);
+		PortfolioService.deleteTicker(req.user.id, ticker).then((dbResponse) => {
+			return res.status(204).send();
 		});
 	});
 

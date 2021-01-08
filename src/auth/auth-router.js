@@ -29,7 +29,7 @@ authRouter
 		// Validate Request
 		(req, res, next) => {
 			const pass = req.body.password;
-			if (pass.length < 6) {
+			if (!pass || pass.length < 6) {
 				return res.status(400).json({
 					status: "invalid password",
 					valErrors: "Password must be at least 6 characters.",
