@@ -1,34 +1,49 @@
-const passportStub = require("passport-stub");
-const app = require("../src/app");
 const db = require("../db/connection");
+const supertest = require("supertest");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET_TEST } = require("../config/config");
 const {
 	makeUsersArray,
 	makeMaliciousUser,
 } = require("./fixtures/app-fixtures");
 
-passportStub.install(app);
-
-describe.skip("Auth endpoints", function () {
-	before("cleanup", function () {
-		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+describe("Auth endpoints", function () {
+	before("cleanup", async function () {
+		await db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
-	beforeEach("insert test users", function () {
-		db.into("users").insert(makeUsersArray());
+	beforeEach("insert test users", async function () {
+		await db.into("users").insert(makeUsersArray());
 	});
 
-	afterEach("cleanup users", function () {
-		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
+	afterEach("cleanup users", async function () {
+		await db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
-	after("disconnect from db", function () {
-		// return db.destroy();
-	});
+	/*
+	 * AUTH ENDPOINTS
+	 * -> Register
+	 * -> Login
+	 * -> Logout
+	 */
+	const testUserId = 1;
+	const testUserUsername = "steve";
+	const testUserPassword = "johnson123";
+	const authCreds = {
+		password: testUserPassword,
+		username: testUserUsername,
+	};
 
+	/*
+	 * Register
+	 */
 	describe("POST /api/auth/register", function () {
+		const registerEndpoint = "/api/auth/register";
+
+		//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -> REGISTER A USER
 		it("should register a new user", function () {
 			return supertest(app)
-				.post("/api/auth/register")
+				.post(registerEndpoint)
 				.send({
 					username: "frodo",
 					password: "baggins",
@@ -36,23 +51,24 @@ describe.skip("Auth endpoints", function () {
 				.expect(201, { status: "success" })
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
-		it("should throw an error if user exists", function () {
+
+		//  - - - - - - - - - - - - -- - - - - - - -> DENY REGISTRATION TO AN EXISTING USER
+		it("returns 400 if user already exists", function () {
 			return supertest(app)
-				.post("/api/auth/register")
-				.send({
-					username: "steve",
-					password: "johnson123",
-				})
+				.post(registerEndpoint)
+				.send(authCreds)
 				.expect(400, { status: "user exists" })
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
-		it("should throw an error if the password is < 6 characters", function () {
+
+		//  - - - - - - - - _- - - - - - -> DENY REGISTRATION IF CREDENTIALS FAIL VALIDATION
+		it("should return 400 if the password is < 6 characters", function () {
 			const basPassRes = {
 				status: "invalid password",
 				valErrors: "Password must be at least 6 characters.",
 			};
 			return supertest(app)
-				.post("/api/auth/register")
+				.post(registerEndpoint)
 				.send({
 					username: "larry",
 					password: "short",
@@ -60,10 +76,12 @@ describe.skip("Auth endpoints", function () {
 				.expect(400, basPassRes)
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
+
+		//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -> HANDLE XSS ATTACK
 		it("should stop an XSS attack", function () {
 			const { maliciousUser, expectedUser } = makeMaliciousUser();
 			return supertest(app)
-				.post(`/api/auth/register`)
+				.post(registerEndpoint)
 				.send(maliciousUser)
 				.expect(201)
 				.then(function () {
@@ -79,19 +97,35 @@ describe.skip("Auth endpoints", function () {
 		});
 	});
 
-	describe("POST /api/auth/login", function () {
-		it("should login a user", function () {
+	/*
+	 * Login
+	 */
+	describe.only("POST /api/auth/login", function () {
+		const loginEndpoint = "/api/auth/login";
+		const invalidAuthCreds = {
+			username: "steve",
+			password: "badpassword",
+		};
+
+		//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -> LOGIN A USER
+		it("responds 200 and JWT auth token using secret when valid credentials", function () {
+			const expectedToken = jwt.sign(
+				{ user_id: testUserId }, // payload
+				JWT_SECRET_TEST,
+				{
+					subject: testUserUsername,
+					algorithm: "HS256",
+				}
+			);
+
 			return supertest(app)
-				.post("/api/auth/login")
-				.send({
-					username: "steve",
-					password: "johnson123",
-				})
-				.expect(200, { status: "success" })
+				.post(loginEndpoint)
+				.send(authCreds)
+				.expect(200, { status: "success", authToken: expectedToken })
 				.expect("Content-Type", "application/json; charset=utf-8");
 		});
 
-		it("should not login an unregistered user", function () {
+		it("should return 401 for an unregistered user", function () {
 			return supertest(app)
 				.post("/api/auth/login")
 				.send({
@@ -108,14 +142,11 @@ describe.skip("Auth endpoints", function () {
 		it("should not login user with incorrect password", function () {
 			return supertest(app)
 				.post("/api/auth/login")
-				.send({
-					username: "steve",
-					password: "badpassword",
-				})
+				.send(invalidAuthCreds)
 				.expect(401);
 		});
+
 		it("should throw an error if a user is logged in", function () {
-			passportStub.login(1);
 			return supertest(app)
 				.post("/api/auth/login")
 				.send({
@@ -129,8 +160,6 @@ describe.skip("Auth endpoints", function () {
 
 	describe("GET /api/auth/logout", function () {
 		it("should logout a user", function () {
-			// passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/auth/login")
 				.send({

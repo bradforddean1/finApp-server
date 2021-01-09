@@ -1,8 +1,3 @@
-const app = require("../src/app");
-const passportStub = require("passport-stub");
-
-passportStub.install(app);
-
 describe("App", () => {
 	// All Routes
 	describe("support for CORS and best practice headers in place", () => {

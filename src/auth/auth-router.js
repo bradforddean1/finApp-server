@@ -72,6 +72,8 @@ authRouter
 		bodyParser,
 		loginRedirect,
 		function (req, res, next) {
+			console.log("Response: ", req.body.username);
+
 			AuthService.findUserByUsername(xss(req.body.username)).then(
 				(response) => {
 					if (response) {

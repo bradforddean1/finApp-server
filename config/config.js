@@ -11,6 +11,8 @@ const SESSION_SECRET_KEY = process.env.SESSION_SECRET_KEY;
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
 const FINNHUB_API_KEY_SANDBOX = process.env.FINNHUB_API_KEY_SANDBOX;
 const CLIENT_ROOT = process.env.CLIENT_ROOT || "http://localhost:3000";
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET_TEST = process.env.JWT_SECRET || "test-jwt-secret";
 
 module.exports = {
 	NODE_ENV,
@@ -21,4 +23,6 @@ module.exports = {
 	FINNHUB_API_KEY,
 	FINNHUB_API_KEY_SANDBOX,
 	CLIENT_ROOT,
+	JWT_SECRET,
+	JWT_SECRET_TEST,
 };

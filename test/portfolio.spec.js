@@ -1,4 +1,3 @@
-const passportStub = require("passport-stub");
 const app = require("../src/app");
 const db = require("../db/connection");
 const {
@@ -6,8 +5,6 @@ const {
 	makeUsersArray,
 } = require("./fixtures/app-fixtures");
 const { assert } = require("chai");
-
-passportStub.install(app);
 
 describe.skip("portfolio endpoints", function () {
 	// Common setup and teardown
@@ -31,17 +28,12 @@ describe.skip("portfolio endpoints", function () {
 		db.raw("TRUNCATE TABLE portfolio_items RESTART IDENTITY CASCADE");
 	});
 
-	afterEach("logout", function () {
-		passportStub.logout();
-	});
-
 	after("cleanup users", function () {
 		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
 
 	describe("GET /api/portfolio", function () {
 		it("should return a all tickers associated with user passed", function () {
-			passportStub.login(1);
 			const expected = [
 				{
 					ticker: "AAPL",
@@ -67,8 +59,6 @@ describe.skip("portfolio endpoints", function () {
 
 	describe("POST /api/portfolio", function () {
 		it("should return 400 if no ticker symbol provided", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send("")
@@ -80,8 +70,6 @@ describe.skip("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if ticker symbol provided is not a string", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send({ ticker: ["NEW"] })
@@ -93,8 +81,6 @@ describe.skip("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if no ticker symbol provided is longer than 5 characters", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send({ ticker: "TOOLONG" })
@@ -106,8 +92,6 @@ describe.skip("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if symbol already exists", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send({ ticker: "AAPL" })
@@ -118,8 +102,6 @@ describe.skip("portfolio endpoints", function () {
 		});
 
 		it("should return success if passed a ticker symbol", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send({ ticker: "NEW" })
@@ -131,8 +113,6 @@ describe.skip("portfolio endpoints", function () {
 		});
 
 		it("should add the ticker to the database", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.post("/api/portfolio")
 				.send({ ticker: "NEW" })
@@ -158,14 +138,10 @@ describe.skip("portfolio endpoints", function () {
 
 	describe("DELETE /api/portfolio", function () {
 		it("should return success", function () {
-			passportStub.login(1);
-
 			return supertest(app).delete("/api/portfolio/aapl").expect(204);
 		});
 
 		it("should be removed from the database", function () {
-			passportStub.login(1);
-
 			return supertest(app)
 				.delete("/api/portfolio/aapl")
 				.then(async function () {
