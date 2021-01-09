@@ -45,21 +45,25 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// app.use(cors());
+app.use(
+	cors({
+		origin: CLIENT_ROOT,
+		methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+		credentials: true,
+	})
+);
 // CORS
-app.use(function (req, res, next) {
-	res.header("Access-Control-Allow-Origin", CLIENT_ROOT);
-	res.header("Access-Control-Allow-Credentials", "true");
-	res.header(
-		"Access-Control-Allow-Headers",
-		"Origin, X-Requested-With, Content-Type, Accept, Authorization"
-	);
-	res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
-	// if (req.method === "OPTIONS") {
-	// 	return res.send(204);
-	// }
-	next();
-});
+// app.use(function (req, res, next) {
+// 	res.header("Access-Control-Allow-Origin", CLIENT_ROOT);
+// 	res.header("Access-Control-Allow-Credentials", "true");
+// 	res.header(
+// 		"Access-Control-Allow-Headers",
+// 		"Origin, X-Requested-With, Content-Type, Accept, Authorization"
+// 	);
+// 	res.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+
+// next();
+// });
 
 app.use("/api/auth", authRouter);
 app.use("/api/quote", quoteRouter);
