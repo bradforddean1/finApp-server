@@ -9,7 +9,6 @@ const morgan = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV, CLIENT_ROOT } = require("../config/config");
-const session = require("express-session");
 const passport = require("./auth/passport-config");
 const errorHandler = require("./error-handler");
 
@@ -23,8 +22,6 @@ const authRouter = require("./auth/auth-router");
 const quoteRouter = require("./quote/quote-router");
 const portfolioRouter = require("./portfolio/portfolio-router");
 
-// const portfolioRouter = require("./portfolio/portfolio-router");
-
 // definitions
 const app = express();
 const morganSetting = NODE_ENV === "production" ? "tiny" : "dev";
@@ -33,25 +30,16 @@ const morganSetting = NODE_ENV === "production" ? "tiny" : "dev";
 app.use(morgan(morganSetting));
 app.use(helmet());
 
-app.use(
-	session({
-		secret: process.env.SESSION_SECRET_KEY,
-		resave: false,
-		saveUninitialized: true,
-		cookie: { maxAge: 60000, sameSite: "none" },
-	})
-);
-
 app.use(passport.initialize());
-app.use(passport.session());
 
 app.use(
 	cors({
 		origin: CLIENT_ROOT,
-		methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+		methods: ["POST", "GET", "DELETE", "OPTIONS"],
 		credentials: true,
 	})
 );
+
 // CORS
 // app.use(function (req, res, next) {
 // 	res.header("Access-Control-Allow-Origin", CLIENT_ROOT);
@@ -66,14 +54,16 @@ app.use(
 // });
 
 app.use("/api/auth", authRouter);
-app.use("/api/quote", quoteRouter);
-app.use("/api/portfolio", portfolioRouter);
-
-// app.use("/portfolio", portfolioRouter);
-
-app.get("/", (req, res) => {
-	res.send("Hello Express!");
-});
+app.use(
+	"/api/quote",
+	passport.authenticate("jwt", { session: false }),
+	quoteRouter
+);
+app.use(
+	"/api/portfolio",
+	passport.authenticate("jwt", { session: false }),
+	portfolioRouter
+);
 
 // handle server errors
 app.use(errorHandler);

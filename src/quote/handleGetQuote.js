@@ -13,10 +13,14 @@ const {
 
 const formatCurrency = (number, currency) => {
 	country = currency = currency;
-	return new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: currency,
-	}).format(number);
+	try {
+		return new Intl.NumberFormat("en-US", {
+			style: "currency",
+			currency: currency,
+		}).format(number);
+	} catch (error) {
+		return number.toFixed(2).toString();
+	}
 };
 
 const formatPercent = (number) => {

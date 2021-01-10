@@ -30,13 +30,14 @@ function getHash(password) {
  * @param {Object} res
  * @param {Function} next
  */
-function loginRequired(req, res, next) {
-	console.log("REQ-USER", req.user);
-	if (!req.user) {
-		return res.status(401).json({ status: "Please log in" });
-	}
-	return next();
-}
+
+// function loginRequired(req, res, next) {
+//  console.log("REQ-USER", req.user);
+//  if (!req.user) {
+//  	return res.status(401).json({ status: "Please log in" });
+//  }
+//  return next();
+// }
 
 /**
  * Check if user is logged in: Sends an express response with 401 stats if req does
@@ -56,6 +57,5 @@ function loginRedirect(req, res, next) {
 module.exports = {
 	comparePass,
 	getHash,
-	loginRequired,
 	loginRedirect,
 };

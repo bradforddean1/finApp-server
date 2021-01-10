@@ -4,7 +4,6 @@
  */
 
 const quoteRouter = require("express").Router();
-const { loginRequired } = require("../auth/helpers");
 const { handleGetProfile, handleGetQuote } = require("./handleGetQuote");
 
 quoteRouter
@@ -16,7 +15,7 @@ quoteRouter
 	 * @route {GET} /quote/:ticker
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
-	.get(loginRequired, (req, res, next) => {
+	.get((req, res, next) => {
 		const ticker = req.params.symbol;
 
 		if (typeof ticker != "string" || ticker.length > 5) {
@@ -51,7 +50,7 @@ quoteRouter
  * @route {GET} /quote/:ticker/profile
  * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
  */
-quoteRouter.route("/:symbol/profile").get(loginRequired, (req, res, next) => {
+quoteRouter.route("/:symbol/profile").get((req, res, next) => {
 	const ticker = req.params.symbol;
 
 	if (typeof ticker != "string" || ticker.length > 5) {

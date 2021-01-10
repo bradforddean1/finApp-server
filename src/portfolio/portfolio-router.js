@@ -6,7 +6,6 @@
 const portfolioRouter = require("express").Router();
 const PortfolioService = require("./portfolio-service");
 const { handleGetPortfolio } = require("./portfolio-handlers");
-const { loginRequired } = require("../auth/helpers");
 const bodyParser = require("express").json();
 const xss = require("xss");
 
@@ -19,7 +18,8 @@ portfolioRouter
 	 * @route {GET} /portfolio
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
-	.get(loginRequired, (req, res, next) => {
+	.get((req, res, next) => {
+		console.log("HEEEERRREE");
 		return handleGetPortfolio(req.user.id).then((portfolio) => {
 			return res.status(200).json(portfolio);
 		});
@@ -32,7 +32,7 @@ portfolioRouter
 	 * @route {POST} /portfolio
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
-	.post(bodyParser, loginRequired, (req, res) => {
+	.post(bodyParser, (req, res) => {
 		const ticker = req.body.ticker;
 
 		function sendValFailure(issue) {
@@ -76,7 +76,7 @@ portfolioRouter
 	 * @route {DELETE} /portfolio/:ticker
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
-	.delete(loginRequired, (req, res) => {
+	.delete((req, res) => {
 		const ticker = xss(req.params.ticker);
 		PortfolioService.deleteTicker(req.user.id, ticker).then((dbResponse) => {
 			return res.status(204).send();
