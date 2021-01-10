@@ -109,7 +109,7 @@ authRouter
 						subject: user.username,
 						algorithm: "HS256",
 					});
-
+					console.log(token);
 					res.status(200).json({ status: "success", token });
 				});
 			})(req, res);
