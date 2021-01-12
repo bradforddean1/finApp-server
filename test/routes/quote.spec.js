@@ -1,13 +1,31 @@
-const db = require("../db/connection");
+const db = require("../../db/connection");
 const {
 	makeQuoteKeysList,
 	makeProfileKeysList,
 	makeUsersArray,
-} = require("./fixtures/app-fixtures");
+} = require("../fixtures/app-fixtures");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET_TEST } = require("../config/config");
+const { JWT_SECRET_TEST } = require("../../config/config");
 
-describe.only("test quote and profile endpoints", function () {
+/*
+ * Variables
+ */
+const testUserId = 1;
+const testUserUsername = "steve";
+const token = jwt.sign(
+	{ user_id: testUserId }, // payload
+	JWT_SECRET_TEST,
+	{
+		subject: testUserUsername,
+		algorithm: "HS256",
+	}
+);
+const bearerToken = `bearer ${token}`;
+
+/*
+ * Tests
+ */
+describe("test quote and profile endpoints", function () {
 	before("cleanup", async function () {
 		await db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
@@ -25,17 +43,6 @@ describe.only("test quote and profile endpoints", function () {
 	 **************************************************************************** */
 
 	describe("test quote endpoints", function () {
-		const testUserId = 1;
-		const testUserUsername = "steve";
-		const token = jwt.sign(
-			{ user_id: testUserId }, // payload
-			JWT_SECRET_TEST,
-			{
-				subject: testUserUsername,
-				algorithm: "HS256",
-			}
-		);
-		const bearerToken = `bearer ${token}`;
 		const badEndpoint = "/api/quote/bad";
 		const malformedSymbolEndpoint = "/api/quote/AAPLXYZ";
 		const missingSymbolEndpoint = "/api/quote";
@@ -46,7 +53,7 @@ describe.only("test quote and profile endpoints", function () {
 			const req = supertest.get(validSymbolEndpoint);
 			req.set("Accept", "application/json");
 			req.set({ Authorization: bearerToken });
-			end(function (err, res) {
+			req.end(function (err, res) {
 				if (err) return done(err);
 				assert.equal(res.status, 200);
 				assert.deepInclude(res.body, { status: "success" });
@@ -59,20 +66,18 @@ describe.only("test quote and profile endpoints", function () {
 		//  - - - - - - - - - - - - - - - - - - - - -> DENY ACCESS TO A PROTECTED ROUTE
 		it("should return a 401 for an unauthenticated user", function (done) {
 			const req = supertest.get(validSymbolEndpoint);
-			req
-				.set({ Authorization: bearerToken, Accept: application / json })
-				.end(function (err, res) {
-					if (err) return done(err);
-					assert.equal(res.status, 401);
-					done();
-				});
+			req.end(function (err, res) {
+				if (err) return done(err);
+				assert.equal(res.status, 401);
+				done();
+			});
 		});
 
 		//  - - - - - - - - - - - - - - - - - - - - - - - -> NON-EXISTENT TICKER SYMBOL
 		it("should return 'no match' for a logged-in user if no match to ticker is found", function (done) {
 			const req = supertest.get(badEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 200);
@@ -85,7 +90,7 @@ describe.only("test quote and profile endpoints", function () {
 		it("should return a 404 for a logged-in user if no ticker symbol is provided", function (done) {
 			const req = supertest.get(missingSymbolEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 404);
@@ -97,7 +102,7 @@ describe.only("test quote and profile endpoints", function () {
 		it("should return a 400 for a logged-in user if the provided ticker symbol is in an invalid format", function (done) {
 			const req = supertest.get(malformedSymbolEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 400);
@@ -120,7 +125,7 @@ describe.only("test quote and profile endpoints", function () {
 		it("should return profile data for a logged-in user", function (done) {
 			const req = supertest.get(validProfileEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 200);
@@ -136,7 +141,7 @@ describe.only("test quote and profile endpoints", function () {
 			const req = supertest.get(validProfileEndpoint);
 			// The reason this acts as expected is because we are not setting cookies
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 401);
@@ -148,7 +153,7 @@ describe.only("test quote and profile endpoints", function () {
 		it("should return 'no match' for a logged-in user if no match to ticker is found", function (done) {
 			const req = supertest.get(badProfileEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 200);
@@ -161,7 +166,7 @@ describe.only("test quote and profile endpoints", function () {
 		it("should return a 400 for a logged-in user if the provided ticker symbol is in an invalid format", function (done) {
 			const req = supertest.get(malformedProfileSymbolEndpoint);
 			req
-				.set({ Authorization: bearerToken, Accept: application / json })
+				.set({ Authorization: bearerToken, Accept: "application/json" })
 				.end(function (err, res) {
 					if (err) return done(err);
 					assert.equal(res.status, 400);

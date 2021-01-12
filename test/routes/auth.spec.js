@@ -1,11 +1,11 @@
-const db = require("../db/connection");
+const db = require("../../db/connection");
 const supertest = require("supertest");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET_TEST } = require("../config/config");
+const { JWT_SECRET_TEST } = require("../../config/config");
 const {
 	makeUsersArray,
 	makeMaliciousUser,
-} = require("./fixtures/app-fixtures");
+} = require("../fixtures/app-fixtures");
 
 describe("Auth endpoints", function () {
 	/* ****************************************************************************

@@ -1,12 +1,12 @@
-const portfolioService = require("../src/portfolio/portfolio-service");
-const db = require("../db/connection");
+const portfolioService = require("../../src/portfolio/portfolio-service");
+const db = require("../../db/connection");
 const {
 	makePortfolioItems,
 	makeUsersArray,
-} = require("./fixtures/app-fixtures");
+} = require("../fixtures/app-fixtures");
 const { assert } = require("chai");
 
-describe("portfolio service", function () {
+describe.skip("portfolio service", function () {
 	before("cleanup users", function () {
 		db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 	});
@@ -78,9 +78,6 @@ describe("portfolio service", function () {
 				.catch((err) => {
 					assert.deepEqual(err.message, "ticker already exists for user");
 				});
-		});
-		it.skip("returns database error if user associated passed does not exist", async function () {
-			// how to test throws on async functions...
 		});
 	});
 

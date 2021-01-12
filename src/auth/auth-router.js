@@ -5,7 +5,7 @@
 
 const authRouter = require("express").Router();
 const xss = require("xss");
-const { getHash, loginRequired, loginRedirect } = require("./helpers");
+const { getHash } = require("./helpers");
 const passport = require("./passport-config");
 const jwt = require("jsonwebtoken");
 const bodyParser = require("express").json();
@@ -33,7 +33,6 @@ authRouter
 	 */
 	.post(
 		bodyParser,
-		loginRedirect,
 		// Validate Request
 		(req, res, next) => {
 			const pass = req.body.password;
@@ -78,10 +77,7 @@ authRouter
 	 */
 	.post(
 		bodyParser,
-		loginRedirect,
 		function (req, res, next) {
-			console.log("Response: ", req.body.username);
-
 			AuthService.findUserByUsername(xss(req.body.username)).then(
 				(response) => {
 					if (response) {
@@ -109,7 +105,6 @@ authRouter
 						subject: user.username,
 						algorithm: "HS256",
 					});
-					console.log(token);
 					res.status(200).json({ status: "success", token });
 				});
 			})(req, res);

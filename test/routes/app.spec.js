@@ -1,10 +1,8 @@
+const supertest = require("supertest");
+
 describe("App", () => {
 	// All Routes
-	describe("support for CORS and best practice headers in place", () => {
-		it("returns Access-Control-Allow-Origin header", () => {
-			return supertest(app).get("/").expect("Access-Control-Allow-Origin", "*");
-		});
-
+	describe("Best practice headers in place", () => {
 		it("X-Powered-By header is absent", () => {
 			return supertest(app)
 				.get("/")

@@ -19,7 +19,6 @@ portfolioRouter
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
 	.get((req, res, next) => {
-		console.log("HEEEERRREE");
 		return handleGetPortfolio(req.user.id).then((portfolio) => {
 			return res.status(200).json(portfolio);
 		});

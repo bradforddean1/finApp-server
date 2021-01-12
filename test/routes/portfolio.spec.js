@@ -1,13 +1,15 @@
-const db = require("../db/connection");
+const db = require("../../db/connection");
 const supertest = require("supertest");
 const {
 	makePortfolioItems,
+	makeQuoteKeysList,
 	makeUsersArray,
-} = require("./fixtures/app-fixtures");
+} = require("../fixtures/app-fixtures");
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET_TEST } = require("../config/config");
+const { JWT_SECRET_TEST } = require("../../config/config");
+const { assert } = require("chai");
 
-describe.only("portfolio endpoints", function () {
+describe("portfolio endpoints", function () {
 	/* ****************************************************************************
 	 *                             PORTFOLIO ENDPOINTS                            *
 	 ******************************************************************************
@@ -39,14 +41,6 @@ describe.only("portfolio endpoints", function () {
 		await db.into("portfolio_items").insert(makePortfolioItems());
 	});
 
-	// beforeEach("populate tickers", async function () {
-	// 	await db.into("portfolio_items").insert(makePortfolioItems());
-	// });
-
-	// afterEach("reset database", async function () {
-	// 	await db.raw("TRUNCATE TABLE portfolio_items RESTART IDENTITY CASCADE");
-	// });
-
 	after("cleanup db", async function () {
 		await db.raw("TRUNCATE TABLE users RESTART IDENTITY CASCADE");
 		await db.raw("TRUNCATE TABLE portfolio_items RESTART IDENTITY CASCADE");
@@ -75,7 +69,10 @@ describe.only("portfolio endpoints", function () {
 				.expect(200)
 				.expect("Content-Type", "application/json; charset=utf-8")
 				.then(function (res) {
-					return assert.deepInclude(res.body, expected);
+					res.body.forEach((element) => {
+						assert.hasAllKeys(element, makeQuoteKeysList());
+						assert.element.ticker;
+					});
 				});
 		});
 

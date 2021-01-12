@@ -52,12 +52,10 @@ passport.use(
 		(jwtPayload, cb) => {
 			AuthService.findUserById(jwtPayload.user_id)
 				.then((user) => {
-					console.log("SUCCESS", user);
 					if (!user) return cb(null, false);
 					return cb(null, user);
 				})
 				.catch((err) => {
-					console.log("FAIL", jwtPayload.user_id);
 					return cb(err);
 				});
 		}

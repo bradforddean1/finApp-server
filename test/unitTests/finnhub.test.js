@@ -4,9 +4,9 @@ const {
 	getStockCandles,
 	getBasicFinancials,
 	getQuote,
-} = require("../src/api/finnhub");
+} = require("../../src/api/finnhub");
 
-describe("finnhub api", function () {
+describe.skip("finnhub api", function () {
 	describe("get quote", () => {
 		it("returns quote", async function () {
 			await getQuote("AAPL")

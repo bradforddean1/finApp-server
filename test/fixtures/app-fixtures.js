@@ -59,22 +59,22 @@ function makePortfolioItems() {
 
 function makeQuoteKeysList() {
 	return [
-    "change",
-    "changePct",
-    "country",
-    "currency",
+		"change",
+		"changePct",
+		"country",
+		"currency",
 		"current",
-    "exchange",
-    "finnhubIndustry",
-    "ipo",
-    "logo",
+		"exchange",
+		"finnhubIndustry",
+		"ipo",
+		"logo",
 		"marketCapitalization",
-    "name",
-    "phone",
+		"name",
+		"phone",
 		"shareOutstanding",
 		"ticker",
-    "website",
-    "weburl"
+		"website",
+		"weburl",
 	];
 }
 
@@ -103,12 +103,12 @@ function makeProfileKeysList() {
 		"marketCapitalization",
 		"name",
 		"pbAnnual",
-    "peNormalizedAnnual",
-    "phone",
+		"peNormalizedAnnual",
+		"phone",
 		"shareOutstanding",
-    "ticker",
-    "website",
-		"weburl"
+		"ticker",
+		"website",
+		"weburl",
 	];
 }
 

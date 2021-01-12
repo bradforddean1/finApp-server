@@ -15,7 +15,7 @@
 		"postdeploy": "npm run migrate:production",
 		"seed": "npx knex seed:run",
 		"start": "node src/server.js",
-		"test": "env NODE_ENV=test mocha --require test/setup.js --exit"
+		"test": "env NODE_ENV=test mocha --recursive --require test/setup.js --exit"
 	},
 	"keywords": [],
 	"author": "",
