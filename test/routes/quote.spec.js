@@ -140,13 +140,11 @@ describe("test quote and profile endpoints", function () {
 		it("should return a 401 for an unauthenticated user", function (done) {
 			const req = supertest.get(validProfileEndpoint);
 			// The reason this acts as expected is because we are not setting cookies
-			req
-				.set({ Authorization: bearerToken, Accept: "application/json" })
-				.end(function (err, res) {
-					if (err) return done(err);
-					assert.equal(res.status, 401);
-					done();
-				});
+			req.set({ Accept: "application/json" }).end(function (err, res) {
+				if (err) return done(err);
+				assert.equal(res.status, 401);
+				done();
+			});
 		});
 
 		//  - - - - - - - - - - - - - - - - - - - - - - - -> NON-EXISTENT TICKER SYMBOL

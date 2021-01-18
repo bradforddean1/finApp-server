@@ -73,7 +73,6 @@ function makeQuoteKeysList() {
 		"phone",
 		"shareOutstanding",
 		"ticker",
-		"website",
 		"weburl",
 	];
 }
@@ -107,7 +106,6 @@ function makeProfileKeysList() {
 		"phone",
 		"shareOutstanding",
 		"ticker",
-		"website",
 		"weburl",
 	];
 }

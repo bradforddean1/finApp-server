@@ -1,5 +1,4 @@
 const db = require("../../db/connection");
-const supertest = require("supertest");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET_TEST } = require("../../config/config");
 const {
@@ -56,7 +55,7 @@ describe("Auth endpoints", function () {
 
 	describe("POST /api/auth/register", function () {
 		it("should register a new user", function () {
-			return supertest(app)
+			return supertest
 				.post(registerEndpoint)
 				.send({
 					username: "frodo",
@@ -67,7 +66,7 @@ describe("Auth endpoints", function () {
 		});
 
 		it("returns 400 if user already exists", function () {
-			return supertest(app)
+			return supertest
 				.post(registerEndpoint)
 				.send(authCreds)
 				.expect(400, { status: "user exists" })
@@ -79,7 +78,7 @@ describe("Auth endpoints", function () {
 				status: "invalid password",
 				valErrors: "Password must be at least 6 characters.",
 			};
-			return supertest(app)
+			return supertest
 				.post(registerEndpoint)
 				.send({
 					username: "larry",
@@ -91,7 +90,7 @@ describe("Auth endpoints", function () {
 
 		it("should stop an XSS attack", function () {
 			const { maliciousUser, expectedUser } = makeMaliciousUser();
-			return supertest(app)
+			return supertest
 				.post(registerEndpoint)
 				.send(maliciousUser)
 				.expect(201)
@@ -116,7 +115,7 @@ describe("Auth endpoints", function () {
 	describe("POST /api/auth/login", function () {
 		//  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -> LOGIN A USER
 		it("responds 200 and JWT auth token using secret when valid credentials", function () {
-			return supertest(app)
+			return supertest
 				.post(loginEndpoint)
 				.send(authCreds)
 				.expect(200, { status: "success", token: token })
@@ -124,7 +123,7 @@ describe("Auth endpoints", function () {
 		});
 
 		it("should return 401 for an unregistered user", function () {
-			return supertest(app)
+			return supertest
 				.post(loginEndpoint)
 				.send({
 					username: "sam",
@@ -134,14 +133,11 @@ describe("Auth endpoints", function () {
 		});
 
 		it("retruns 401 if login info not provided", function () {
-			return supertest(app).post(loginEndpoint).send({}).expect(401);
+			return supertest.post(loginEndpoint).send({}).expect(401);
 		});
 
 		it("should not login user with incorrect password", function () {
-			return supertest(app)
-				.post(loginEndpoint)
-				.send(invalidAuthCreds)
-				.expect(401);
+			return supertest.post(loginEndpoint).send(invalidAuthCreds).expect(401);
 		});
 	});
 });

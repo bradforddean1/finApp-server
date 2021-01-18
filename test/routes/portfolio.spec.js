@@ -1,5 +1,4 @@
 const db = require("../../db/connection");
-const supertest = require("supertest");
 const {
 	makePortfolioItems,
 	makeQuoteKeysList,
@@ -7,7 +6,6 @@ const {
 } = require("../fixtures/app-fixtures");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET_TEST } = require("../../config/config");
-const { assert } = require("chai");
 
 describe("portfolio endpoints", function () {
 	/* ****************************************************************************
@@ -63,7 +61,7 @@ describe("portfolio endpoints", function () {
 				},
 			];
 
-			return supertest(app)
+			return supertest
 				.get("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.expect(200)
@@ -71,13 +69,12 @@ describe("portfolio endpoints", function () {
 				.then(function (res) {
 					res.body.forEach((element) => {
 						assert.hasAllKeys(element, makeQuoteKeysList());
-						assert.element.ticker;
 					});
 				});
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/api/portfolio").expect(401);
+			return supertest.get("/api/portfolio").expect(401);
 		});
 	});
 
@@ -86,7 +83,7 @@ describe("portfolio endpoints", function () {
 	 */
 	describe("POST /api/portfolio", function () {
 		it("should return 400 if no ticker symbol provided", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.send("")
@@ -98,7 +95,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if ticker symbol provided is not a string", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.send({ ticker: ["NEW"] })
@@ -110,7 +107,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if no ticker symbol provided is longer than 5 characters", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.send({ ticker: "TOOLONG" })
@@ -122,7 +119,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should return 400 if symbol already exists", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.send({ ticker: "AAPL" })
@@ -133,7 +130,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should return success if passed a ticker symbol", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
 				.set({ Authorization: bearerToken })
 				.send({ ticker: "NEW" })
@@ -145,23 +142,24 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should add the ticker to the database", function () {
-			return supertest(app)
+			return supertest
 				.post("/api/portfolio")
-				.set({ Authorization: bearerToken })
-				.send({ ticker: "NEW" })
+				.set({ Authorization: bearerToken })s
+				.send({ ticker: "NEWER" })
 				.then(async function (res) {
 					const allTickers = await db
 						.from("portfolio_items")
 						.select("*")
 						.where("user_id", 1)
-						.where("ticker", "NEW");
+						.where("ticker", "NEWER");
 					assert.lengthOf(allTickers, 1);
+					console.log("TEST", allTickers);
 					assert.deepInclude(res.body, { newItemId: allTickers[0].id });
 				});
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/api/portfolio").expect(401);
+			return supertest.get("/api/portfolio").expect(401);
 		});
 	});
 
@@ -170,14 +168,14 @@ describe("portfolio endpoints", function () {
 	 */
 	describe("DELETE /api/portfolio", function () {
 		it("should return success", function () {
-			return supertest(app)
+			return supertest
 				.delete("/api/portfolio/aapl")
 				.set({ Authorization: bearerToken })
 				.expect(204);
 		});
 
 		it("should be removed from the database", function () {
-			return supertest(app)
+			return supertest
 				.delete("/api/portfolio/aapl")
 				.set({ Authorization: bearerToken })
 				.then(async function () {
@@ -190,7 +188,7 @@ describe("portfolio endpoints", function () {
 		});
 
 		it("should throw an error if a user is not logged in", function () {
-			return supertest(app).get("/api/portfolio").expect(401);
+			return supertest.get("/api/portfolio").expect(401);
 		});
 	});
 });
