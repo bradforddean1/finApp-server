@@ -16,7 +16,7 @@ quoteRouter
 	 * @authentication This route requires oAuth Authentication. If authentication fails it will return a 401 error.
 	 */
 	.get((req, res, next) => {
-		const ticker = req.params.symbol;
+		const ticker = req.params.symbol.toString().toUpperCase();
 
 		if (typeof ticker != "string" || ticker.length > 5) {
 			return res.status(400).json({
