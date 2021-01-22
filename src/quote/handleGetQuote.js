@@ -11,26 +11,28 @@ const {
 	getQuote,
 } = require("../api/finnhub");
 
+const formatNumber = (number) => {
+	return number ? number.toFixed(2).toString() : null;
+};
+
 const formatCurrency = (number, currency) => {
-	country = currency = currency;
 	try {
 		return new Intl.NumberFormat("en-US", {
 			style: "currency",
 			currency: currency,
 		}).format(number);
 	} catch (error) {
-		return number.toFixed(2).toString();
+		return formatNumber(number);
 	}
 };
 
 const formatPercent = (number) => {
-	return number.toFixed(2).toString().concat("%");
+	return number ? number.toFixed(2).toString().concat("%") : null;
 };
 
 const formatRatio = (number) => {
-	return number.toFixed(2).toString().concat("x");
+	return number ? number.toFixed(2).toString().concat("x") : null;
 };
-
 /**
  * Handles profile and current quote data retirval.
  * Handles fetch and transform data for symbol
@@ -89,12 +91,12 @@ const handleGetQuote = (symbol) => {
 		});
 		Object.assign(filteredRes, { name });
 		Object.assign(filteredRes, {
-			shareOutstanding: shareOutstanding.toFixed(2).toString(),
+			shareOutstanding: shareOutstanding.toFixed(2).toString().concat("M"),
 		});
 		Object.assign(filteredRes, { ticker });
 		Object.assign(filteredRes, { website });
 		Object.assign(filteredRes, { logo });
-		Object.assign(filteredRes, { finnhubIndustry });
+		Object.assign(filteredRes, finnhubIndustry ? finnhubIndustry : "-");
 
 		// Quote
 		const { c, pc } = quote;
