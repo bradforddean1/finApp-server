@@ -144,7 +144,7 @@ describe("portfolio endpoints", function () {
 		it("should add the ticker to the database", function () {
 			return supertest
 				.post("/api/portfolio")
-				.set({ Authorization: bearerToken })s
+				.set({ Authorization: bearerToken })
 				.send({ ticker: "NEWER" })
 				.then(async function (res) {
 					const allTickers = await db
